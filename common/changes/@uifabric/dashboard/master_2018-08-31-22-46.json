@@ -2,10 +2,10 @@
   "changes": [
     {
       "packageName": "@uifabric/dashboard",
-      "comment": "Add Donut chart with legends",
+      "comment": "patch",
       "type": "patch"
     }
   ],
   "packageName": "@uifabric/dashboard",
-  "email": "gorigarajesh@gmail.com"
+  "email": "raghurk@microsoft.com"
 }
