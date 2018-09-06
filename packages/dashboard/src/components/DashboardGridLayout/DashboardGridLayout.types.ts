@@ -25,6 +25,15 @@ export type DashboardSectionMapping = {
   [id: string]: string[];
 };
 
+export type DashboardSectionExpandMapping = {
+  /**
+   * Key to key mapping for sections
+   * Key: section key
+   * Value: if the section is expanded
+   */
+  [id: string]: true;
+};
+
 export interface IDashboardCardLayout {
   /**
    * A string corresponding to the component key
@@ -89,6 +98,21 @@ export interface IDashboardGridLayoutProps {
   isResizable?: boolean;
 
   /**
+   * The view port break points
+   */
+  breakpoints?: { [P in Breakpoints]: number };
+
+  /**
+   * # of cols. This is a breakpoint -> cols map, e.g. {lg: 12, md: 10, ...}
+   */
+  cols?: { [P in Breakpoints]: number };
+
+  /**
+   * Margin added by React-Grid-Layout between items [x, y] in px.
+   */
+  margin?: [number, number];
+
+  /**
    * Calls when drag starts.
    */
   onDragStart?: ItemCallback;
@@ -141,5 +165,10 @@ export interface IDashboardGridSectionLayoutProps extends IDashboardGridLayoutPr
    * On section change.
    * @param newMapping
    */
-  onSectionChange?(currentLayout: Layout[], allLayouts: Layouts, sectionMapping?: DashboardSectionMapping): void;
+  onSectionChange?(
+    currentLayout: Layout[],
+    allLayouts: Layouts,
+    sectionMapping?: DashboardSectionMapping,
+    dahsboardLayout?: DashboardGridBreakpointLayouts
+  ): void;
 }

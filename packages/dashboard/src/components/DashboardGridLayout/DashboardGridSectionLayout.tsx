@@ -4,7 +4,9 @@ import {
   IDashboardGridSectionLayoutProps,
   IDashboardGridLayoutStyles,
   IDashboardCardLayout,
-  DashboardSectionMapping
+  DashboardSectionMapping,
+  DashboardSectionExpandMapping,
+  DashboardGridBreakpointLayouts
 } from './DashboardGridLayout.types';
 import { ICard, CardSize } from '../Card/Card.types';
 import { ISection } from '../Section/Section.types';
@@ -18,27 +20,29 @@ require('style-loader!css-loader!react-resizable/css/styles.css');
 require('style-loader!css-loader!./DashboardGridLayout.css');
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
-const breakpoints = {
-  lg: 1920,
-  md: 1366,
-  sm: 1024,
-  xs: 640,
-  xxs: 480,
-  xxxs: 320
-};
 
-const cols = {
-  lg: 4,
-  md: 4,
-  sm: 3,
-  xs: 2,
-  xxs: 1,
-  xxxs: 1
-};
+export interface IState {
+  layouts: Layouts;
+}
 
-export class DashboardGridSectionLayout extends React.Component<IDashboardGridSectionLayoutProps, {}> {
+export class DashboardGridSectionLayout extends React.Component<IDashboardGridSectionLayoutProps, IState> {
   public static defaultProps: Partial<IDashboardGridSectionLayoutProps> = {
-    rowHeight: 50
+    rowHeight: 50,
+    breakpoints: {
+      lg: 1920,
+      md: 1366,
+      sm: 1024,
+      xs: 640,
+      xxs: 480
+    },
+    cols: {
+      lg: 4,
+      md: 4,
+      sm: 3,
+      xs: 2,
+      xxs: 1
+    },
+    margin: [24, 24]
   };
 
   /** the list of all section ids */
@@ -50,6 +54,10 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridSe
   /** the section id to card ids mapping */
   private _sectionMapping: DashboardSectionMapping = {};
 
+  private _sectionExpandMapping: DashboardSectionExpandMapping = {};
+
+  // private _layouts: Layouts = {};
+
   constructor(props: IDashboardGridSectionLayoutProps) {
     super(props);
     this._sectionKeys = this.props.sections.map((section: ISection) => section.id);
@@ -58,6 +66,13 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridSe
     this.props.cards.forEach((card: ICard) => {
       this._cardSizes[card.id] = card.cardSize;
     });
+    Object.keys(this._sectionMapping).forEach((sectionId: string) => {
+      this._sectionExpandMapping[sectionId] = true;
+    });
+    this.state = {
+      layouts: this._createLayout()
+    };
+    // this._layouts = this._createLayout();
   }
 
   public render(): JSX.Element {
@@ -66,16 +81,19 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridSe
     return (
       <ResponsiveReactGridLayout
         isDraggable={this.props.isDraggable || true}
-        breakpoints={breakpoints}
-        cols={cols}
+        breakpoints={this.props.breakpoints}
+        cols={this.props.cols}
         className={classNames.root}
-        margin={[24, 24]}
+        margin={this.props.margin}
         containerPadding={[0, 0]}
         isResizable={this.props.isResizable || false}
         rowHeight={this.props.rowHeight}
-        layouts={this._createLayout()}
+        layouts={this.state.layouts}
         verticalCompact={true}
         onLayoutChange={this._onLayoutChanged}
+        onDrag={this.props.onDrag}
+        onDragStart={this.props.onDragStart}
+        onDragStop={this.props.onDragStop}
         onBreakpointChange={this.props.onBreakPointChange}
         dragApiRef={this.props.dragApi}
         {...this.props}
@@ -92,7 +110,13 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridSe
     this._currentLayout = currentLayout;
     this._sectionMapping = this._processSections();
     if (this.props.onSectionChange) {
-      this.props.onSectionChange(currentLayout, allLayouts, this._sectionMapping);
+      console.log('_onLayoutChanged');
+      this.props.onSectionChange(
+        currentLayout,
+        allLayouts,
+        this._sectionMapping,
+        this._rGLLayoutToDashboardLayout(allLayouts)
+      );
     }
   };
 
@@ -168,38 +192,116 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridSe
     if (!this._isLastSection(sectionKey)) {
       delta = this._currentSectionHeight(sectionKey);
     }
-    const newLayOut = JSON.parse(JSON.stringify(this._currentLayout)); // deep clone
 
-    if (expanded) {
-      // if current expanded, toggle to collapse
-      for (let i = 0; i < Object.keys(newLayOut).length; i++) {
-        if (cardKeysOfCurrentSection && cardKeysOfCurrentSection.indexOf(String(newLayOut[i].i)) > -1) {
-          newLayOut[i].h = 0;
-          newLayOut[i].w = 0;
-        } else if (impactedKeys.indexOf(String(newLayOut[i].i)) > -1) {
-          this._moveVertically(newLayOut[i], delta, true);
+    for (const [breakPoint, value] of Object.entries(this.state.layouts)) {
+      if (value === undefined) {
+        continue;
+      }
+
+      const newLayOut: Layout[] = JSON.parse(JSON.stringify(value));
+      if (expanded) {
+        // if current expanded, toggle to collapse
+        for (let k = 0; k < Object.keys(newLayOut).length; k++) {
+          if (cardKeysOfCurrentSection && cardKeysOfCurrentSection.indexOf(String(newLayOut[k].i)) > -1) {
+            newLayOut[k].h = 0;
+            newLayOut[k].w = 0;
+          } else if (impactedKeys.indexOf(String(newLayOut[k].i)) > -1) {
+            this._moveVertically(newLayOut[k], delta, true);
+          }
+        }
+      } else {
+        for (let j = 0; j < Object.keys(newLayOut).length; j++) {
+          const currentCardKey = String(newLayOut[j].i!);
+          if (cardKeysOfCurrentSection && cardKeysOfCurrentSection.indexOf(currentCardKey) > -1) {
+            newLayOut[j].h = CardSizeToWidthHeight[this._cardSizes[currentCardKey]].h;
+            newLayOut[j].w = CardSizeToWidthHeight[this._cardSizes[currentCardKey]].w;
+          } else if (impactedKeys.indexOf(currentCardKey) > -1) {
+            this._moveVertically(newLayOut[j], delta, false);
+          }
         }
       }
-    } else {
-      for (let j = 0; j < Object.keys(newLayOut).length; j++) {
-        const currentCardKey = String(newLayOut[j].i);
-        if (cardKeysOfCurrentSection && cardKeysOfCurrentSection.indexOf(currentCardKey) > -1) {
-          newLayOut[j].h = CardSizeToWidthHeight[this._cardSizes[currentCardKey]].h;
-          newLayOut[j].w = CardSizeToWidthHeight[this._cardSizes[currentCardKey]].w;
-        } else if (impactedKeys.indexOf(currentCardKey) > -1) {
-          this._moveVertically(newLayOut[j], delta, false);
-        }
-      }
+
+      const newLayouts = {};
+      this._updateLayoutsFromLayout(newLayouts, newLayOut, breakPoint);
+      this.setState({
+        layouts: newLayouts
+      });
     }
 
-    const newLayouts: Layouts = {};
-    if (this.props.layout) {
-      for (const [k, _] of Object.entries(this.props.layout)) {
-        this._updateLayoutsFromLayout(newLayouts, newLayOut, k);
+    // const newLayOut = JSON.parse(JSON.stringify(this._currentLayout)); // deep clone
+
+    // if (expanded) {
+    //   // if current expanded, toggle to collapse
+    //   for (let i = 0; i < Object.keys(newLayOut).length; i++) {
+    //     if (cardKeysOfCurrentSection && cardKeysOfCurrentSection.indexOf(String(newLayOut[i].i)) > -1) {
+    //       newLayOut[i].h = 0;
+    //       newLayOut[i].w = 0;
+    //     } else if (impactedKeys.indexOf(String(newLayOut[i].i)) > -1) {
+    //       this._moveVertically(newLayOut[i], delta, true);
+    //     }
+    //   }
+    // } else {
+    //   for (let j = 0; j < Object.keys(newLayOut).length; j++) {
+    //     const currentCardKey = String(newLayOut[j].i);
+    //     if (cardKeysOfCurrentSection && cardKeysOfCurrentSection.indexOf(currentCardKey) > -1) {
+    //       newLayOut[j].h = CardSizeToWidthHeight[this._cardSizes[currentCardKey]].h;
+    //       newLayOut[j].w = CardSizeToWidthHeight[this._cardSizes[currentCardKey]].w;
+    //     } else if (impactedKeys.indexOf(currentCardKey) > -1) {
+    //       this._moveVertically(newLayOut[j], delta, false);
+    //     }
+    //   }
+    // }
+
+    // const newLayouts: Layouts = {};
+    // if (this.props.layout) {
+    //   for (const [k, _] of Object.entries(this.props.layout)) {
+    //     this._updateLayoutsFromLayout(newLayouts, newLayOut, k);
+    //   }
+
+    //   if (this.props.onSectionChange) {
+    //     console.log('_expandCollapseLayoutsUnderSection');
+    //     this.props.onSectionChange(
+    //       newLayOut,
+    //       newLayouts,
+    //       this._sectionMapping,
+    //       this._rGLLayoutToDashboardLayout(newLayouts)
+    //     );
+    //   }
+
+    //   this._layouts = newLayouts;
+    // }
+    // if (this.props.onSectionChange) {
+    //   console.log('_expandCollapseLayoutsUnderSection');
+    //   this.props.onSectionChange(
+    //     this._currentLayout,
+    //     this.state.layouts,
+    //     null,
+    //     this._rGLLayoutToDashboardLayout(this.state.layouts)
+    //   );
+    // }
+  }
+
+  private _rGLLayoutToDashboardLayout(rglLayout: Layouts): DashboardGridBreakpointLayouts {
+    const newLayout: DashboardGridBreakpointLayouts = {};
+    for (const [key, value] of Object.entries(rglLayout)) {
+      if (value === undefined) {
+        continue;
+      }
+      const layoutForBreakPoint: IDashboardCardLayout[] = [];
+      for (let i = 0; i < value.length; i++) {
+        const t = {
+          i: value[i].i!,
+          x: value[i].x,
+          y: value[i].y,
+          size: this._isSection(value[i]) ? CardSize.section : this._cardSizes[value[i].i!]
+        };
+        layoutForBreakPoint.push(t);
       }
 
-      // TODO update parent state with new layout
+      this._updateDashboardGridBreakpointLayouts(newLayout, layoutForBreakPoint, key);
     }
+
+    return newLayout;
   }
 
   /**
@@ -376,6 +478,30 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridSe
       isDraggable: layoutProp.disableDrag === undefined ? true : !layoutProp.disableDrag,
       isResizable: layoutProp.isResizable === undefined ? true : layoutProp.isResizable
     };
+  }
+
+  private _updateDashboardGridBreakpointLayouts(
+    layouts: DashboardGridBreakpointLayouts,
+    layoutForBreakPoint: IDashboardCardLayout[],
+    key: string
+  ): void {
+    switch (key) {
+      case 'lg':
+        layouts.lg = layoutForBreakPoint;
+        break;
+      case 'md':
+        layouts.md = layoutForBreakPoint;
+        break;
+      case 'sm':
+        layouts.sm = layoutForBreakPoint;
+        break;
+      case 'xs':
+        layouts.xs = layoutForBreakPoint;
+        break;
+      case 'xxs':
+        layouts.xxs = layoutForBreakPoint;
+        break;
+    }
   }
 
   private _createLayout(): Layouts {

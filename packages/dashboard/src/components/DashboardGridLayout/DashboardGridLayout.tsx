@@ -14,28 +14,26 @@ require('style-loader!css-loader!react-resizable/css/styles.css');
 require('style-loader!css-loader!./DashboardGridLayout.css');
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
-const breakpoints = {
-  lg: 1920,
-  md: 1366,
-  sm: 1024,
-  xs: 640,
-  xxs: 480,
-  xxxs: 320
-};
-
-const cols = {
-  lg: 4,
-  md: 4,
-  sm: 3,
-  xs: 2,
-  xxs: 1,
-  xxxs: 1
-};
 
 export class DashboardGridLayout extends React.Component<IDashboardGridLayoutProps, {}> {
   /** The default row height used for React-Grid-Layout */
   public static defaultProps: Partial<IDashboardGridLayoutProps> = {
-    rowHeight: 50
+    rowHeight: 50,
+    breakpoints: {
+      lg: 1920,
+      md: 1366,
+      sm: 1024,
+      xs: 640,
+      xxs: 480
+    },
+    cols: {
+      lg: 4,
+      md: 4,
+      sm: 3,
+      xs: 2,
+      xxs: 1
+    },
+    margin: [24, 24]
   };
 
   constructor(props: IDashboardGridLayoutProps) {
@@ -49,10 +47,10 @@ export class DashboardGridLayout extends React.Component<IDashboardGridLayoutPro
     return (
       <ResponsiveReactGridLayout
         isDraggable={this.props.isDraggable || true}
-        breakpoints={breakpoints}
-        cols={cols}
+        breakpoints={this.props.breakpoints}
+        cols={this.props.cols}
         className={classNames.root}
-        margin={[24, 24]}
+        margin={this.props.margin}
         containerPadding={[0, 0]}
         isResizable={this.props.isResizable || false}
         rowHeight={this.props.rowHeight}

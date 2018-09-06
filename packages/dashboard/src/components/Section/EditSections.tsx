@@ -37,6 +37,7 @@ export class EditSections extends React.PureComponent<IEditSectionsProps, IEditS
           <ActionButton
             {...this.props.saveButtonProps}
             disabled={this.props.saveButtonDisabled || this.state.isAddingNewSection || this.state.isRenamingSection}
+            onClick={this._saveClicked}
             allowDisabledFocus={true}
             styles={{
               root: classNames.saveButton,
@@ -169,6 +170,15 @@ export class EditSections extends React.PureComponent<IEditSectionsProps, IEditS
 
     if (this.props.onCancel) {
       this.props.onCancel();
+    }
+  };
+
+  /**
+   * When click on the save button
+   */
+  private _saveClicked = () => {
+    if (this.props.onSave) {
+      this.props.onSave();
     }
   };
 

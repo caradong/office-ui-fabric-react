@@ -157,6 +157,7 @@ const getHeader = (name: string) => {
 
 export interface IDashboardGridLayoutSectionsExampleState {
   sectionMapping: DashboardSectionMapping;
+  dashboardLayout: DashboardGridBreakpointLayouts;
 }
 
 export class DashboardGridLayoutSectionsExample extends React.Component<{}, IDashboardGridLayoutSectionsExampleState> {
@@ -167,7 +168,8 @@ export class DashboardGridLayoutSectionsExample extends React.Component<{}, IDas
         section1: ['0', '1'],
         section2: ['2'],
         section3: ['3', '4']
-      }
+      },
+      dashboardLayout: this._getLayout()
     };
   }
 
@@ -175,7 +177,7 @@ export class DashboardGridLayoutSectionsExample extends React.Component<{}, IDas
     return (
       <DashboardGridSectionLayout
         isDraggable={true}
-        layout={this._getLayout()}
+        layout={this.state.dashboardLayout}
         sections={this._sections()}
         cards={this._cards()}
         onSectionChange={this._onSectionChange}
@@ -251,11 +253,16 @@ export class DashboardGridLayoutSectionsExample extends React.Component<{}, IDas
   private _onSectionChange = (
     currentLayout: Layout[],
     allLayouts: Layouts,
-    sectionMapping: DashboardSectionMapping
+    sectionMapping: DashboardSectionMapping,
+    dashboardLayout: DashboardGridBreakpointLayouts
   ): void => {
+    console.log('allLayouts', allLayouts);
+    console.log('sectionMapping', sectionMapping);
+    console.log('dashboardLayout', dashboardLayout);
     this.setState({
       ...this.state,
       sectionMapping: sectionMapping
+      // dashboardLayout: dashboardLayout
     });
     // For storing the information to local storage:
     // - this.state.sectionMapping, save to storage.
@@ -269,7 +276,7 @@ export class DashboardGridLayoutSectionsExample extends React.Component<{}, IDas
         { i: '0', y: 1, x: 0, size: CardSize.small },
         { i: '1', y: 1, x: 1, size: CardSize.mediumTall },
         { i: 'section2', y: 9, x: 0, size: CardSize.section },
-        { i: '2', y: 10, x: 0, size: CardSize.mediumWide },
+        { i: '2', y: 10, x: 0, size: CardSize.small },
         { i: 'section3', y: 12, x: 0, size: CardSize.section },
         { i: '3', y: 13, x: 0, size: CardSize.mediumWide },
         { i: '4', y: 13, x: 6, size: CardSize.large }
