@@ -248,11 +248,9 @@ export class DashboardGridLayoutSectionsExample extends React.Component<{}, IDas
     ];
   }
 
-  private _onSectionChange = (
-    currentLayout: Layout[],
-    allLayouts: Layouts,
-    sectionMapping: DashboardSectionMapping
-  ): void => {
+  private _onSectionChange = (currentLayout: Layout[], allLayouts: Layouts, sectionMapping: DashboardSectionMapping): void => {
+    console.log('Collapse-currentLayout', currentLayout);
+    console.log('Collapse-sectionMapping', sectionMapping);
     this.setState({
       ...this.state,
       sectionMapping: sectionMapping

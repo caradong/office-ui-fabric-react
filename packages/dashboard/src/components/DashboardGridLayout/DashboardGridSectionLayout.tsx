@@ -15,21 +15,47 @@ import { getStyles } from './DashboardGridLayout.styles';
 import { classNamesFunction } from 'office-ui-fabric-react/lib/Utilities';
 import { CardSizeToWidthHeight, getFirstDefinedDashboardLayout, getFirstDefinedLayout } from '../../utilities/DashboardGridLayoutUtils';
 
-export class DashboardGridSectionLayout extends React.Component<IDashboardGridLayoutProps, {}> {
+export interface IState {
+  sectionExpand: { [id: string]: boolean };
+}
+
+export class DashboardGridSectionLayout extends React.Component<IDashboardGridLayoutProps, IState> {
   /** the list of all section ids */
   private _sectionKeys: string[] = [];
   /** the size dictionary of all cards. Used to recorver the card size on expand */
-  private _cardSizes: { [key: string]: CardSize } = {};
+  private _cardSizes: { [id: string]: CardSize } = {};
   /** the current layout given the current browser viewport */
   private _currentLayout: Layout[];
   /** the section id to card ids mapping */
   private _sectionMapping: DashboardSectionMapping = {};
 
+  private _layouts: Layouts;
+
   constructor(props: IDashboardGridLayoutProps) {
     super(props);
+
     this._sectionKeys = this.props.sections ? this.props.sections.map((section: ISection) => section.id) : [];
+    this._sectionMapping = {};
+    if (this.props.sections) {
+      this.props.sections.forEach((section: ISection) => {
+        this._sectionMapping[section.id] = section.cardIds ? section.cardIds : [];
+      });
+    }
+
+    const initialsSectionExapnd: { [id: string]: boolean } = {};
+
+    this._sectionKeys.forEach((id: string) => {
+      initialsSectionExapnd[id] = true;
+    });
+
+    this.state = {
+      sectionExpand: initialsSectionExapnd
+    };
+
     this._currentLayout = getFirstDefinedLayout(this._createLayout());
-    this._sectionMapping = this._processSections();
+
+    // this._layouts = {};
+
     if (this.props.cards) {
       this.props.cards.forEach((card: ICard) => {
         this._cardSizes[card.id] = card.cardSize;
@@ -57,6 +83,8 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridLa
   private _onLayoutChanged = (currentLayout: Layout[], allLayouts: Layouts) => {
     this._currentLayout = currentLayout;
     this._sectionMapping = this._processSections();
+    this._layouts = allLayouts;
+    console.log(this._layouts);
     if (this.props.onSectionChange) {
       this.props.onSectionChange(currentLayout, allLayouts, this._sectionMapping);
     }
@@ -64,6 +92,7 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridLa
 
   /**
    * process the sections when layout is changed.
+   * @returns the new section mapping
    */
   private _processSections(): DashboardSectionMapping {
     if (this._currentLayout) {
@@ -76,7 +105,11 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridLa
           newsectionMapping[currentSectionKey] = [];
 
           for (let j = 0; j < this._currentLayout.length; j++) {
-            if (
+            if (this._currentLayout[j].w === 0 && this._currentLayout[j].h === 0) {
+              // when w and h are both 0, this card is hidden due to the section being collapsed;
+              // and the section mapping for this section key is kept
+              // newsectionMapping[currentSectionKey] = this._sectionMapping[currentSectionKey];
+            } else if (
               this._currentLayout[j].y >= sections[i].y &&
               // either this is the last section, or y smaller than the next section
               (!sections[i + 1] || this._currentLayout[j].y < sections[i + 1].y) &&
@@ -112,93 +145,100 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridLa
    * @param sectionKey the key of the section clicked
    */
   private _expandCollapseLayoutsUnderSection(expanded: boolean, sectionKey: string): void {
-    if (this.props.sections) {
-      return;
-    }
+    // if (this.props.sections) {
+    //   return;
+    // }
 
-    const sectionsAfterCurrentSection = this._sectionKeys.slice(this._sectionKeys.indexOf(sectionKey) + 1);
-    const impactedSections: ISection[] = this.props.sections!.filter((section: ISection) => {
-      return sectionsAfterCurrentSection.indexOf(section.id) > -1;
+    // const sectionsAfterCurrentSection = this._sectionKeys.slice(this._sectionKeys.indexOf(sectionKey) + 1);
+    // const impactedSections: ISection[] = this.props.sections!.filter((section: ISection) => {
+    //   return sectionsAfterCurrentSection.indexOf(section.id) > -1;
+    // });
+    // const cardKeysOfCurrentSection = this.props.sections!.filter((section: ISection) => {
+    //   return section.id === sectionKey;
+    // })[0].cardIds;
+
+    // let impactedKeys: string[] = impactedSections.map((section: ISection) => {
+    //   return section.id;
+    // });
+
+    // impactedSections.forEach((section: ISection) => {
+    //   if (section.cardIds) {
+    //     impactedKeys = impactedKeys.concat(section.cardIds);
+    //   }
+    // });
+
+    // const newLayouts: Layouts = {};
+
+    // for (const [breakPoint, value] of Object.entries(this._layouts)) {
+    //   if (value === undefined) {
+    //     continue;
+    //   }
+    //   let delta = 0;
+    //   if (!this._isLastSection(sectionKey)) {
+    //     delta = this._currentSectionHeight(sectionKey, value);
+    //   }
+    //   const newLayOut = JSON.parse(JSON.stringify(this._currentLayout)); // deep clone
+    //   if (expanded) {
+    //     // if current expanded, toggle to collapse
+    //     for (let i = 0; i < Object.keys(newLayOut).length; i++) {
+    //       if (cardKeysOfCurrentSection && cardKeysOfCurrentSection.indexOf(String(newLayOut[i].i)) > -1) {
+    //         newLayOut[i].h = 0;
+    //         newLayOut[i].w = 0;
+    //       } else if (impactedKeys.indexOf(String(newLayOut[i].i)) > -1) {
+    //         this._moveVertically(newLayOut[i], delta, true);
+    //       }
+    //     }
+    //   } else {
+    //     for (let j = 0; j < Object.keys(newLayOut).length; j++) {
+    //       const currentCardKey = String(newLayOut[j].i);
+    //       if (cardKeysOfCurrentSection && cardKeysOfCurrentSection.indexOf(currentCardKey) > -1) {
+    //         newLayOut[j].h = CardSizeToWidthHeight[this._cardSizes[currentCardKey]].h;
+    //         newLayOut[j].w = CardSizeToWidthHeight[this._cardSizes[currentCardKey]].w;
+    //       } else if (impactedKeys.indexOf(currentCardKey) > -1) {
+    //         this._moveVertically(newLayOut[j], delta, false);
+    //       }
+    //     }
+    //   }
+
+    //   this._updateLayoutsFromLayout(newLayouts, newLayOut, breakPoint);
+    // }
+
+    this.setState({
+      sectionExpand: { ...this.state.sectionExpand, [sectionKey]: !expanded }
     });
-    const cardKeysOfCurrentSection = this.props.sections!.filter((section: ISection) => {
-      return section.id === sectionKey;
-    })[0].cardIds;
 
-    let impactedKeys: string[] = impactedSections.map((section: ISection) => {
-      return section.id;
-    });
-
-    impactedSections.forEach((section: ISection) => {
-      if (section.cardIds) {
-        impactedKeys = impactedKeys.concat(section.cardIds);
-      }
-    });
-
-    let delta = 0;
-    if (!this._isLastSection(sectionKey)) {
-      delta = this._currentSectionHeight(sectionKey);
-    }
-    const newLayOut = JSON.parse(JSON.stringify(this._currentLayout)); // deep clone
-    if (expanded) {
-      // if current expanded, toggle to collapse
-      for (let i = 0; i < Object.keys(newLayOut).length; i++) {
-        if (cardKeysOfCurrentSection && cardKeysOfCurrentSection.indexOf(String(newLayOut[i].i)) > -1) {
-          newLayOut[i].h = 0;
-          newLayOut[i].w = 0;
-        } else if (impactedKeys.indexOf(String(newLayOut[i].i)) > -1) {
-          this._moveVertically(newLayOut[i], delta, true);
-        }
-      }
-    } else {
-      for (let j = 0; j < Object.keys(newLayOut).length; j++) {
-        const currentCardKey = String(newLayOut[j].i);
-        if (cardKeysOfCurrentSection && cardKeysOfCurrentSection.indexOf(currentCardKey) > -1) {
-          newLayOut[j].h = CardSizeToWidthHeight[this._cardSizes[currentCardKey]].h;
-          newLayOut[j].w = CardSizeToWidthHeight[this._cardSizes[currentCardKey]].w;
-        } else if (impactedKeys.indexOf(currentCardKey) > -1) {
-          this._moveVertically(newLayOut[j], delta, false);
-        }
-      }
-    }
-
-    const newLayouts: Layouts = {};
-    if (this.props.layout) {
-      for (const [k, _] of Object.entries(this.props.layout)) {
-        this._updateLayoutsFromLayout(newLayouts, newLayOut, k);
-      }
-
-      // TODO update parent state with new layout
-    }
+    // this._layouts = newLayouts;
   }
 
   /**
    * Get the height of a section by measure the y axis between this and the next section. This method
    * does not work with the last section for the page.
    * @param key the key of the section
+   * @param layoutList the list of layout
    */
-  private _currentSectionHeight(key: string): number {
-    const currentSectionY = this._currentLayout.filter((layout: Layout) => {
-      return layout.i === key;
-    })[0].y;
-    const nextSectionY = this._currentLayout.filter((layout: Layout) => {
-      return layout.i === this._sectionKeys[this._sectionKeys.indexOf(key) + 1];
-    })[0].y;
+  // private _currentSectionHeight(key: string, layoutList: Layout[]): number {
+  //   const currentSectionY = layoutList.filter((layout: Layout) => {
+  //     return layout.i === key;
+  //   })[0].y;
+  //   const nextSectionY = this._currentLayout.filter((layout: Layout) => {
+  //     return layout.i === this._sectionKeys[this._sectionKeys.indexOf(key) + 1];
+  //   })[0].y;
 
-    const sectionHeaderHeight = CardSizeToWidthHeight[CardSize.section].h;
+  //   const sectionHeaderHeight = CardSizeToWidthHeight[CardSize.section].h;
 
-    return nextSectionY - currentSectionY - sectionHeaderHeight;
-  }
+  //   return nextSectionY - currentSectionY - sectionHeaderHeight;
+  // }
 
   /**
    * If this is the last section on the dashboard
    * @param key the key of the section
    */
-  private _isLastSection(key: string): boolean {
-    if (this._sectionKeys[this._sectionKeys.indexOf(key) + 1]) {
-      return false;
-    }
-    return true;
-  }
+  // private _isLastSection(key: string): boolean {
+  //   if (this._sectionKeys[this._sectionKeys.indexOf(key) + 1]) {
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   /**
    * Move a card vertically
@@ -206,16 +246,16 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridLa
    * @param value value to move
    * @param moveUp true to move up, false to move down
    */
-  private _moveVertically = (layout: Layout, value: number, moveUp: boolean): Layout => {
-    let newLayout: Layout;
-    if (moveUp === true) {
-      newLayout = { ...layout, y: layout.y - value };
-    } else {
-      newLayout = { ...layout, y: layout.y + value };
-    }
+  // private _moveVertically = (layout: Layout, value: number, moveUp: boolean): Layout => {
+  //   let newLayout: Layout;
+  //   if (moveUp === true) {
+  //     newLayout = { ...layout, y: layout.y - value };
+  //   } else {
+  //     newLayout = { ...layout, y: layout.y + value };
+  //   }
 
-    return newLayout;
-  };
+  //   return newLayout;
+  // };
 
   /**
    * return the list of layout for sections, sorted vertically
@@ -326,20 +366,34 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridLa
   /**
    * Translate card size to w and h value, return a Layout object for react-grid-layout
    */
-  private _createLayoutFromProp(layoutProp: IDashboardCardLayout): Layout {
+  private _createLayoutFromProp(layoutProp: IDashboardCardLayout, isHidden: boolean = false): Layout {
     return {
       i: layoutProp.i,
       x: layoutProp.x,
       y: layoutProp.y,
-      w: CardSizeToWidthHeight[layoutProp.size].w,
-      h: CardSizeToWidthHeight[layoutProp.size].h,
+      w: isHidden ? 0 : CardSizeToWidthHeight[layoutProp.size].w,
+      h: isHidden ? 0 : CardSizeToWidthHeight[layoutProp.size].h,
       static: layoutProp.static === undefined ? false : layoutProp.static,
       isDraggable: layoutProp.disableDrag === undefined ? true : !layoutProp.disableDrag,
       isResizable: layoutProp.isResizable === undefined ? true : layoutProp.isResizable
     };
   }
 
+  private _sectionMappingToCardMapping(sectionMapping: DashboardSectionMapping): { [id: string]: string } {
+    const result: { [id: string]: string } = {};
+    for (const [sectionId, cardIds] of Object.entries(sectionMapping)) {
+      for (let i = 0; i < cardIds.length; i++) {
+        result[cardIds[i]] = sectionId;
+      }
+    }
+
+    return result;
+  }
+
   private _createLayout = (): Layouts => {
+    const cardIdtoSectionIdMapping = this._sectionMappingToCardMapping(this._sectionMapping);
+    console.log('cardIdtoSectionIdMapping', cardIdtoSectionIdMapping);
+
     const layouts: Layouts = {};
     if (this.props.layout) {
       for (const [key, value] of Object.entries(this.props.layout)) {
@@ -348,12 +402,19 @@ export class DashboardGridSectionLayout extends React.Component<IDashboardGridLa
         }
         const layout: Layout[] = [];
         for (let i = 0; i < value.length; i++) {
-          const layoutElement = this._createLayoutFromProp(value[i]);
-          if (i === 0) {
+          let isHidden = false;
+          if (this._sectionKeys.indexOf(value[i].i) < 0 && !this.state.sectionExpand[cardIdtoSectionIdMapping[value[i].i]]) {
+            // this is a card and the section is collapsed
+            isHidden = true;
+          }
+          const layoutElement = this._createLayoutFromProp(value[i], isHidden);
+
+          if (i === 0 && this._sectionKeys.indexOf(value[i].i) > -1) {
             // this means it is the first section header and don't allow card to be moved before the first section
             layoutElement.static = true;
           }
           if (this._sectionKeys.indexOf(value[i].i) > -1) {
+            // this is a section header
             layoutElement.isDraggable = false;
           }
           layout.push(layoutElement);
