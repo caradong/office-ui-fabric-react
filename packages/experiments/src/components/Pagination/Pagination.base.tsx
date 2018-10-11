@@ -81,6 +81,7 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
               container: this._classNames.comboBox
             }}
           />
+          <span className={this._classNames.previousNextPage}>{` of ${pageCount}`}</span>
           <li key="nextPage">
             <button
               className={this._classNames.previousNextPage}
