@@ -4,6 +4,7 @@ import { Link } from 'office-ui-fabric-react/lib/Link';
 import { PaginationBasicExample } from './examples/Pagination.Basic.Example';
 import { PaginationCustomizationExample } from './examples/Pagination.Customization.Example';
 import { PaginationCustomizationRoundExample } from './examples/Pagination.Customization.Round.Example';
+import { PaginationWithComboboxExample } from './examples/Pagination.WithCombobox.Example';
 
 const PaginationBasicExampleCode = require('!raw-loader!@uifabric/experiments/src/components/Pagination/examples/Pagination.Basic.Example.tsx') as string;
 const PaginationCustomizationExampleCode = require('!raw-loader!@uifabric/experiments/src/components/Pagination/examples/Pagination.Customization.Example.tsx') as string;
@@ -25,6 +26,9 @@ export class PaginationPage extends React.Component<IComponentDemoPageProps, {}>
             </ExampleCard>
             <ExampleCard title="Pagination with customization using round background" code={PaginationCustomizationRoundExampleCode}>
               <PaginationCustomizationRoundExample />
+            </ExampleCard>
+            <ExampleCard title="Pagination with combo box">
+              <PaginationWithComboboxExample />
             </ExampleCard>
           </div>
         }

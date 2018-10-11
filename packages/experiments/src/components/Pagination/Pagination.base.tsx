@@ -3,6 +3,7 @@ import { BaseComponent, classNamesFunction } from '../../Utilities';
 import { PageNumber } from './PageNumber';
 import { IPaginationProps, IPaginationStyleProps, IPaginationStyles } from './Pagination.types';
 import { FocusZone, FocusZoneDirection } from 'office-ui-fabric-react/lib/FocusZone';
+import { ComboBox, IComboBoxOption } from 'office-ui-fabric-react/lib/ComboBox';
 
 const getClassNames = classNamesFunction<IPaginationStyleProps, IPaginationStyles>();
 
@@ -13,17 +14,36 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
     selectedPageIndex: 0,
     pageRange: 2,
     marginPages: 1,
-    omissionLabel: '...'
+    omissionLabel: '...',
+    withComboBox: false
   };
 
   private _classNames: { [key in keyof IPaginationStyles]: string };
+  private scaleOptions: IComboBoxOption[] = [];
 
   constructor(props: IPaginationProps) {
     super(props);
+
+    for (let i = 0; i < this.props.pageCount; i++) {
+      this.scaleOptions.push({
+        key: `${i}`,
+        text: `${i + 1}`
+      });
+    }
   }
 
   public render(): JSX.Element {
-    const { nextAriaLabel, nextLabel, pageCount, previousAriaLabel, previousLabel, selectedPageIndex, styles, theme } = this.props;
+    const {
+      nextAriaLabel,
+      nextLabel,
+      pageCount,
+      previousAriaLabel,
+      previousLabel,
+      selectedPageIndex,
+      withComboBox,
+      styles,
+      theme
+    } = this.props;
 
     this._classNames = getClassNames(styles!, {
       theme: theme!
@@ -31,6 +51,55 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
 
     const canPrevious = selectedPageIndex! > 0;
     const canNext = selectedPageIndex! + 1 < pageCount;
+    const canFirst = selectedPageIndex !== 0;
+    const canLast = selectedPageIndex !== pageCount - 1;
+
+    if (withComboBox) {
+      return (
+        <ul className={this._classNames.root} role="tablist">
+          <li key="firstPage">
+            <button className={this._classNames.previousNextPage} onClick={this.handleFirstPage} disabled={!canFirst} role="tab">
+              {'<<'}
+            </button>
+          </li>
+          <li key="previousPage">
+            <button
+              className={this._classNames.previousNextPage}
+              onClick={this.handlePreviousPage}
+              disabled={!canPrevious}
+              role="tab"
+              aria-label={previousAriaLabel}
+            >
+              {previousLabel}
+            </button>
+          </li>
+          <ComboBox
+            selectedKey={`${selectedPageIndex}`}
+            options={this.scaleOptions}
+            onChanged={this.onComboBoxChanged}
+            styles={{
+              container: this._classNames.comboBox
+            }}
+          />
+          <li key="nextPage">
+            <button
+              className={this._classNames.previousNextPage}
+              onClick={this.handleNextPage}
+              disabled={!canNext}
+              role="tab"
+              aria-label={nextAriaLabel}
+            >
+              {nextLabel}
+            </button>
+          </li>
+          <li key="lastPage">
+            <button className={this._classNames.previousNextPage} onClick={this.handleLastPage} disabled={!canLast} role="tab">
+              {'>>'}
+            </button>
+          </li>
+        </ul>
+      );
+    }
 
     // FocusZone handles A11Y requirement such as:
     // Dynamically set tabindex (0 or -1) to the correct item
@@ -66,6 +135,21 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
       </FocusZone>
     );
   }
+
+  private handleFirstPage = () => {
+    this.handleSelectedPage(0);
+  };
+
+  private handleLastPage = () => {
+    this.handleSelectedPage(this.props.pageCount - 1);
+  };
+
+  private onComboBoxChanged = (option: IComboBoxOption, index: number, value: string) => {
+    console.log('_onChanged() is called: option = ' + JSON.stringify(option) + ' index = ' + index + ' value = ' + value);
+    if (option !== undefined) {
+      this.handleSelectedPage(index);
+    }
+  };
 
   private handleSelectedPage = (selected: number) => {
     const { selectedPageIndex, onPageChange } = this.props;

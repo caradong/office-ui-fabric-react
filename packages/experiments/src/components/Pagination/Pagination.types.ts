@@ -82,6 +82,8 @@ export interface IPaginationProps {
    */
   theme?: ITheme;
 
+  withComboBox?: boolean;
+
   /**
    * The call back function to load another page in the table. This needs to be defined in the parent component.
    */
@@ -97,6 +99,7 @@ export interface IPaginationStyles {
    * Style for the root element in the default enabled/unchecked state.
    */
   root: IStyle;
+  comboBox?: IStyle;
   pageNumber: IStyle;
   previousNextPage: IStyle;
   omission: IStyle;

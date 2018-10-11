@@ -69,6 +69,11 @@ export function getStyles(props: IPaginationStyleProps): IPaginationStyles {
       {
         color: palette.neutralSecondary
       }
-    ]
+    ],
+    comboBox: {
+      maxWidth: '70px',
+      display: 'inline-block',
+      verticalAlign: 'middle'
+    }
   };
 }
