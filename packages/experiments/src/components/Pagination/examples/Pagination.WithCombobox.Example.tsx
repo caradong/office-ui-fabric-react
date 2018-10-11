@@ -20,14 +20,6 @@ export class PaginationWithComboboxExample extends React.Component<{}, IPaginati
         nextLabel={'>'}
         onPageChange={this.onPageChange}
         withComboBox={true}
-        styles={{
-          previousNextPage: {
-            width: '32px',
-            height: '32px',
-            fontSize: '16px',
-            verticalAlign: 'middle'
-          }
-        }}
       />
     );
   }

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { IconButton } from 'office-ui-fabric-react/lib/Button';
 import { BaseComponent, classNamesFunction } from '../../Utilities';
 import { PageNumber } from './PageNumber';
 import { IPaginationProps, IPaginationStyleProps, IPaginationStyles } from './Pagination.types';
@@ -57,22 +58,14 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
     if (withComboBox) {
       return (
         <ul className={this._classNames.root} role="tablist">
-          <li key="firstPage">
-            <button className={this._classNames.previousNextPage} onClick={this.handleFirstPage} disabled={!canFirst} role="tab">
-              {'<<'}
-            </button>
-          </li>
-          <li key="previousPage">
-            <button
-              className={this._classNames.previousNextPage}
-              onClick={this.handlePreviousPage}
-              disabled={!canPrevious}
-              role="tab"
-              aria-label={previousAriaLabel}
-            >
-              {previousLabel}
-            </button>
-          </li>
+          <IconButton iconProps={{ iconName: 'DoubleChevronLeft' }} onClick={this.handleFirstPage} disabled={!canFirst} role="tab" />
+          <IconButton
+            iconProps={{ iconName: 'ChevronLeft' }}
+            onClick={this.handlePreviousPage}
+            disabled={!canPrevious}
+            role="tab"
+            aria-label={previousAriaLabel}
+          />
           <ComboBox
             selectedKey={`${selectedPageIndex}`}
             options={this.scaleOptions}
@@ -81,23 +74,15 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
               container: this._classNames.comboBox
             }}
           />
-          <span className={this._classNames.previousNextPage}>{` of ${pageCount}`}</span>
-          <li key="nextPage">
-            <button
-              className={this._classNames.previousNextPage}
-              onClick={this.handleNextPage}
-              disabled={!canNext}
-              role="tab"
-              aria-label={nextAriaLabel}
-            >
-              {nextLabel}
-            </button>
-          </li>
-          <li key="lastPage">
-            <button className={this._classNames.previousNextPage} onClick={this.handleLastPage} disabled={!canLast} role="tab">
-              {'>>'}
-            </button>
-          </li>
+          <span>{` of ${pageCount}`}</span>
+          <IconButton
+            iconProps={{ iconName: 'ChevronRight' }}
+            onClick={this.handleNextPage}
+            disabled={!canNext}
+            role="tab"
+            aria-label={nextAriaLabel}
+          />
+          <IconButton iconProps={{ iconName: 'DoubleChevronRight' }} onClick={this.handleLastPage} disabled={!canLast} role="tab" />
         </ul>
       );
     }
