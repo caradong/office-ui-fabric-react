@@ -8,8 +8,8 @@ export interface IPageNumberProps {
   /** If this page if currently selected */
   selected: boolean;
 
-  /** The aria label template. Should contain one place holder, e.g. Page {0} */
-  pageAriaLabel?: string;
+  /** The aria label template.*/
+  ariaLabel?: string;
 
   /** The className */
   className?: string;

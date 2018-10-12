@@ -13,14 +13,7 @@ export class PaginationWithComboboxExample extends React.Component<{}, IPaginati
 
   public render(): JSX.Element {
     return (
-      <Pagination
-        selectedPageIndex={this.state.selectedPageIndex}
-        pageCount={28}
-        previousLabel={'<'}
-        nextLabel={'>'}
-        onPageChange={this.onPageChange}
-        withComboBox={true}
-      />
+      <Pagination selectedPageIndex={this.state.selectedPageIndex} pageCount={28} onPageChange={this.onPageChange} withComboBox={true} />
     );
   }
 

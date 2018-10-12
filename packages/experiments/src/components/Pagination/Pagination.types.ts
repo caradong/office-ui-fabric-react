@@ -1,5 +1,6 @@
 import { IStyle, ITheme } from '../../Styling';
 import { IStyleFunctionOrObject, IRefObject } from '../../Utilities';
+import { IIconProps } from 'office-ui-fabric-react/lib/Icon';
 
 export interface IPagination {}
 
@@ -9,36 +10,13 @@ export interface IPaginationProps {
    */
   pageCount: number;
 
-  /**
-   * label for the next page button
-   * @default '>>'
-   */
-  nextLabel?: string;
+  firstPageIconProps?: IIconProps;
+  lastPageIconProps?: IIconProps;
+  previousPageIconProps?: IIconProps;
+  nextPageIconProps?: IIconProps;
 
-  /**
-   * label for the previous page button
-   * @default '<<'
-   */
-  previousLabel?: string;
-
-  /**
-   * The label representing omitted page numbers.
-   * @default '...'
-   */
-  omissionLabel?: string;
-
-  /**
-   * The page range to show around the selected page. e.g., if this is 2, there will be 2 page numbers in total
-   * showing next to the selected page on the left and/or the right
-   * @default 2
-   */
-  pageRange?: number;
-
-  /**
-   * The number of pages in the beginning and the end of the list.
-   * @default 1
-   */
-  marginPages?: number;
+  itemsPerPage?: number;
+  totalItemCount?: number;
 
   /**
    * Selected page index
@@ -55,6 +33,8 @@ export interface IPaginationProps {
    * aria label for the previous page button
    */
   previousAriaLabel?: string;
+  firstPageAriaLabel?: string;
+  lastPageAriaLabel?: string;
 
   /**
    * aria label for the omitted pages
@@ -84,6 +64,8 @@ export interface IPaginationProps {
 
   withComboBox?: boolean;
 
+  numberOfPageButton?: number;
+
   /**
    * The call back function to load another page in the table. This needs to be defined in the parent component.
    */
@@ -96,11 +78,12 @@ export interface IPaginationStyleProps {
 
 export interface IPaginationStyles {
   /**
-   * Style for the root element in the default enabled/unchecked state.
+   * Style for the root element state.
    */
   root: IStyle;
-  comboBox?: IStyle;
+  comboBox: IStyle;
   pageNumber: IStyle;
   previousNextPage: IStyle;
-  omission: IStyle;
+  previousNextPageDisabled: IStyle;
+  visibleItemLabel: IStyle;
 }

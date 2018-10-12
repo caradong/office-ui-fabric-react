@@ -16,24 +16,28 @@ export class PaginationCustomizationExample extends React.Component<{}, IPaginat
       <Pagination
         selectedPageIndex={this.state.selectedPageIndex}
         pageCount={50}
-        previousLabel={'<<'}
-        nextLabel={'>>'}
-        omissionLabel={'......'}
-        marginPages={2}
+        numberOfPageButton={8}
+        previousAriaLabel={'previous page'}
+        nextAriaLabel={'next page'}
+        firstPageAriaLabel={'first page'}
+        lastPageAriaLabel={'last page'}
         pageAriaLabel={'page'}
         onPageChange={this.onPageChange}
+        firstPageIconProps={{ iconName: 'ChevronLeftEnd6' }}
+        previousPageIconProps={{ iconName: 'ChevronLeftSmall' }}
+        nextPageIconProps={{ iconName: 'ChevronRightSmall' }}
+        lastPageIconProps={{ iconName: 'ChevronRightEnd6' }}
         styles={{
+          previousNextPage: { color: 'black' },
           pageNumber: {
             fontWeight: 'bold',
             selectors: {
-              ':hover': { backgroundColor: '#c8c8c8' },
+              ':hover': { backgroundColor: '#c8c8c8', borderRadius: '16px' },
               '&:aria-selected=true': {
-                color: 'red',
                 fontWeight: 'bold',
                 textDecoration: 'underline'
               },
               '&[aria-selected=true]': {
-                color: 'red',
                 fontWeight: 'bold',
                 textDecoration: 'underline'
               }

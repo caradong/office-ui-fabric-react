@@ -15,39 +15,31 @@ export class PaginationCustomizationRoundExample extends React.Component<{}, IPa
     return (
       <Pagination
         selectedPageIndex={this.state.selectedPageIndex}
-        pageCount={50}
-        previousLabel={'<<'}
-        nextLabel={'>>'}
-        marginPages={2}
+        pageCount={27}
+        itemsPerPage={10}
+        totalItemCount={268}
         pageAriaLabel={'page'}
         onPageChange={this.onPageChange}
         styles={{
-          omission: {
-            color: '#0f8387',
-            width: '32px',
-            height: '32px'
-          },
           previousNextPage: {
-            width: '32px',
-            height: '32px',
-            color: '#0f8387'
+            color: '#0078d4'
           },
           pageNumber: {
             fontWeight: 'bold',
             width: '32px',
             height: '32px',
-            color: '#0f8387',
+            color: '#0078d4',
             textAlign: 'center',
             selectors: {
               ':hover': { textDecoration: 'underline' },
               '&:aria-selected=true': {
-                backgroundColor: '#0f8387',
+                backgroundColor: '#0078d4',
                 fontWeight: 'bold',
                 borderRadius: '16px',
                 color: 'white'
               },
               '&[aria-selected=true]': {
-                backgroundColor: '#0f8387',
+                backgroundColor: '#0078d4',
                 fontWeight: 'bold',
                 borderRadius: '16px',
                 color: 'white'

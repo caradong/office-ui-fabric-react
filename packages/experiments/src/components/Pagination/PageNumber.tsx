@@ -7,22 +7,19 @@ export class PageNumber extends React.Component<IPageNumberProps, {}> {
   }
 
   public render(): JSX.Element {
-    const { className, pageAriaLabel, page, selected } = this.props;
-    const ariaLabel = pageAriaLabel && `${pageAriaLabel} ${page}`;
+    const { className, ariaLabel, page, selected } = this.props;
 
     return (
-      <li key={page}>
-        <button
-          className={className}
-          onClick={this.onClick}
-          aria-selected={selected}
-          aria-label={ariaLabel}
-          data-page-number={page}
-          role={'tab'}
-        >
-          {page}
-        </button>
-      </li>
+      <button
+        key={page}
+        className={className}
+        onClick={this.onClick}
+        aria-selected={selected}
+        aria-label={ariaLabel}
+        data-page-number={page}
+      >
+        {page}
+      </button>
     );
   }
 

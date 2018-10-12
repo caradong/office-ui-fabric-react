@@ -15,13 +15,14 @@ export class PaginationBasicExample extends React.Component<{}, IPaginationBasic
     return (
       <Pagination
         selectedPageIndex={this.state.selectedPageIndex}
-        pageCount={15}
-        previousLabel={'previous'}
+        pageCount={27}
+        itemsPerPage={10}
+        totalItemCount={268}
         previousAriaLabel={'previous page'}
-        nextLabel={'next'}
         nextAriaLabel={'next page'}
+        firstPageAriaLabel={'first page'}
+        lastPageAriaLabel={'last page'}
         pageAriaLabel={'page'}
-        omittedPagesAriaLabel={'more pages'}
         onPageChange={this.onPageChange}
       />
     );

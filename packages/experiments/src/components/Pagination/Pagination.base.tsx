@@ -3,20 +3,20 @@ import { IconButton } from 'office-ui-fabric-react/lib/Button';
 import { BaseComponent, classNamesFunction } from '../../Utilities';
 import { PageNumber } from './PageNumber';
 import { IPaginationProps, IPaginationStyleProps, IPaginationStyles } from './Pagination.types';
-import { FocusZone, FocusZoneDirection } from 'office-ui-fabric-react/lib/FocusZone';
+// import { FocusZone, FocusZoneDirection } from 'office-ui-fabric-react/lib/FocusZone';
 import { ComboBox, IComboBoxOption } from 'office-ui-fabric-react/lib/ComboBox';
 
 const getClassNames = classNamesFunction<IPaginationStyleProps, IPaginationStyles>();
 
 export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
   public static defaultProps: Partial<IPaginationProps> = {
-    nextLabel: '>>',
-    previousLabel: '<<',
     selectedPageIndex: 0,
-    pageRange: 2,
-    marginPages: 1,
-    omissionLabel: '...',
-    withComboBox: false
+    withComboBox: false,
+    numberOfPageButton: 5,
+    previousPageIconProps: { iconName: 'CaretSolidLeft' },
+    nextPageIconProps: { iconName: 'CaretSolidRight' },
+    firstPageIconProps: { iconName: 'Previous' },
+    lastPageIconProps: { iconName: 'Next' }
   };
 
   private _classNames: { [key in keyof IPaginationStyles]: string };
@@ -34,17 +34,7 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
   }
 
   public render(): JSX.Element {
-    const {
-      nextAriaLabel,
-      nextLabel,
-      pageCount,
-      previousAriaLabel,
-      previousLabel,
-      selectedPageIndex,
-      withComboBox,
-      styles,
-      theme
-    } = this.props;
+    const { pageCount, selectedPageIndex, withComboBox, styles, theme, itemsPerPage, totalItemCount } = this.props;
 
     this._classNames = getClassNames(styles!, {
       theme: theme!
@@ -57,16 +47,21 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
 
     if (withComboBox) {
       return (
-        <ul className={this._classNames.root} role="tablist">
-          <IconButton iconProps={{ iconName: 'DoubleChevronLeft' }} onClick={this.handleFirstPage} disabled={!canFirst} role="tab" />
+        <div>
+          <IconButton
+            iconProps={{ iconName: 'DoubleChevronLeft' }}
+            onClick={this.handleFirstPage}
+            disabled={!canFirst}
+            aria-label="First page"
+          />
           <IconButton
             iconProps={{ iconName: 'ChevronLeft' }}
             onClick={this.handlePreviousPage}
             disabled={!canPrevious}
-            role="tab"
-            aria-label={previousAriaLabel}
+            aria-label="Previous page"
           />
           <ComboBox
+            ariaLabel={`${pageCount} pages available`}
             selectedKey={`${selectedPageIndex}`}
             options={this.scaleOptions}
             onChanged={this.onComboBoxChanged}
@@ -75,15 +70,14 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
             }}
           />
           <span>{` of ${pageCount}`}</span>
+          <IconButton iconProps={{ iconName: 'ChevronRight' }} onClick={this.handleNextPage} disabled={!canNext} aria-label="Next page" />
           <IconButton
-            iconProps={{ iconName: 'ChevronRight' }}
-            onClick={this.handleNextPage}
-            disabled={!canNext}
-            role="tab"
-            aria-label={nextAriaLabel}
+            iconProps={{ iconName: 'DoubleChevronRight' }}
+            onClick={this.handleLastPage}
+            disabled={!canLast}
+            aria-label="Last page"
           />
-          <IconButton iconProps={{ iconName: 'DoubleChevronRight' }} onClick={this.handleLastPage} disabled={!canLast} role="tab" />
-        </ul>
+        </div>
       );
     }
 
@@ -91,34 +85,64 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
     // Dynamically set tabindex (0 or -1) to the correct item
     // Refocus to the active item when component re-renders
     // Handles all key strokes, e.g., left/right, space, enter
+    let visibleItemLabel;
+    if (itemsPerPage && totalItemCount) {
+      const leftItemIndex = selectedPageIndex! * itemsPerPage + 1;
+      const rightItemsIndex = Math.min((selectedPageIndex! + 1) * itemsPerPage, totalItemCount);
+      visibleItemLabel = `${leftItemIndex} -  ${rightItemsIndex} of ${totalItemCount}`;
+    }
     return (
-      <FocusZone direction={FocusZoneDirection.horizontal}>
-        <ul className={this._classNames.root} role="tablist">
-          <li key="previousPage">
-            <button
-              className={this._classNames.previousNextPage}
-              onClick={this.handlePreviousPage}
-              disabled={!canPrevious}
-              role="tab"
-              aria-label={previousAriaLabel}
-            >
-              {previousLabel}
-            </button>
-          </li>
+      <div className={this._classNames.root}>
+        <div>
+          <IconButton
+            iconProps={this.props.firstPageIconProps}
+            onClick={this.handleFirstPage}
+            disabled={!canFirst}
+            aria-label="First page"
+            styles={{
+              icon: this._classNames.previousNextPage,
+              rootDisabled: this._classNames.previousNextPageDisabled
+            }}
+          />
+          <IconButton
+            iconProps={this.props.previousPageIconProps}
+            onClick={this.handlePreviousPage}
+            disabled={!canPrevious}
+            aria-label="Previous page"
+            styles={{
+              icon: this._classNames.previousNextPage,
+              rootDisabled: this._classNames.previousNextPageDisabled
+            }}
+          />
           {this._pageList()}
-          <li key="nextPage">
-            <button
-              className={this._classNames.previousNextPage}
-              onClick={this.handleNextPage}
-              disabled={!canNext}
-              role="tab"
-              aria-label={nextAriaLabel}
-            >
-              {nextLabel}
-            </button>
-          </li>
-        </ul>
-      </FocusZone>
+          {/* <FocusZone direction={FocusZoneDirection.horizontal}>{this._pageList()}</FocusZone> */}
+          <IconButton
+            iconProps={this.props.nextPageIconProps}
+            onClick={this.handleNextPage}
+            disabled={!canNext}
+            aria-label="Next page"
+            styles={{
+              icon: this._classNames.previousNextPage,
+              rootDisabled: this._classNames.previousNextPageDisabled
+            }}
+          />
+          <IconButton
+            iconProps={this.props.lastPageIconProps}
+            onClick={this.handleLastPage}
+            disabled={!canLast}
+            aria-label="Last page"
+            styles={{
+              icon: this._classNames.previousNextPage,
+              rootDisabled: this._classNames.previousNextPageDisabled
+            }}
+          />
+        </div>
+        {visibleItemLabel && (
+          <div className={this._classNames.visibleItemLabel} aria-label={visibleItemLabel}>
+            {visibleItemLabel}
+          </div>
+        )}
+      </div>
     );
   }
 
@@ -156,12 +180,14 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
   };
 
   private _pageElement(index: number): JSX.Element {
-    const { pageAriaLabel, selectedPageIndex } = this.props;
+    const { pageAriaLabel, selectedPageIndex, pageCount } = this.props;
+    const ariaLabel = pageAriaLabel && `${pageAriaLabel} ${index + 1} of ${pageCount}`;
+
     return (
       <PageNumber
         key={index + 1}
         page={index + 1}
-        pageAriaLabel={pageAriaLabel}
+        ariaLabel={ariaLabel}
         selected={index === selectedPageIndex}
         applyPage={this.handleSelectedPage}
         className={this._classNames.pageNumber}
@@ -170,49 +196,29 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
   }
 
   private _pageList(): JSX.Element[] {
-    const { marginPages, omittedPagesAriaLabel, omissionLabel, pageCount, pageRange, selectedPageIndex } = this.props;
+    const { numberOfPageButton, pageCount, selectedPageIndex } = this.props;
     const pageList = [];
-    if (pageCount <= pageRange!) {
+    if (pageCount <= numberOfPageButton!) {
       for (let index = 0; index < pageCount; index++) {
         pageList.push(this._pageElement(index));
       }
     } else {
-      const leftHalfCount = pageRange! / 2;
-      const rightHalfCount = pageRange! - leftHalfCount;
+      const leftHalfCount = Math.floor((numberOfPageButton! - 1) / 2);
+      const rightHalfCount = numberOfPageButton! - 1 - leftHalfCount;
 
-      let leftSide = leftHalfCount;
-      let rightSide = rightHalfCount;
+      let leftSide = selectedPageIndex! - leftHalfCount;
+      let rightSide = selectedPageIndex! + rightHalfCount;
 
-      if (selectedPageIndex! > pageCount - 1 - leftHalfCount) {
-        rightSide = pageCount - 1 - selectedPageIndex!;
-        leftSide = pageRange! - rightSide;
-      } else if (selectedPageIndex! < leftHalfCount) {
-        leftSide = selectedPageIndex!;
-        rightSide = pageRange! - leftSide;
+      if (rightSide > pageCount - 1) {
+        rightSide = pageCount - 1;
+        leftSide = rightSide - numberOfPageButton! + 1;
+      } else if (leftSide < 0) {
+        leftSide = 0;
+        rightSide = numberOfPageButton! - 1;
       }
 
-      let previousIndexIsOmitted = false;
-      for (let index = 0; index < pageCount; index++) {
-        const page = index + 1;
-        if (
-          page <= marginPages! ||
-          page > pageCount - marginPages! ||
-          (index >= selectedPageIndex! - leftSide && index <= selectedPageIndex! + rightSide)
-        ) {
-          pageList.push(this._pageElement(index));
-          previousIndexIsOmitted = false;
-          continue;
-        }
-
-        if (previousIndexIsOmitted === false) {
-          const listKey = 'ellipsis' + index.toString();
-          pageList.push(
-            <li key={listKey} className={this._classNames.omission} aria-label={omittedPagesAriaLabel}>
-              {omissionLabel}
-            </li>
-          );
-          previousIndexIsOmitted = true;
-        }
+      for (let index = leftSide; index <= rightSide; index++) {
+        pageList.push(this._pageElement(index));
       }
     }
 

@@ -24,6 +24,9 @@ export function getStyles(props: IPaginationStyleProps): IPaginationStyles {
       classNames.root,
       {
         listStyle: 'none',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
         selectors: {
           li: {
             display: 'inline'
@@ -32,25 +35,23 @@ export function getStyles(props: IPaginationStyleProps): IPaginationStyles {
       }
     ],
     previousNextPage: [
-      buttonStyles,
       {
-        color: palette.black,
-        selectors: {
-          '&:disabled': {
-            cursor: 'default',
-            color: palette.neutralTertiaryAlt
-          },
-          '&[disabled]': {
-            cursor: 'default',
-            color: palette.neutralTertiaryAlt
-          }
-        }
+        color: palette.themePrimary
+      }
+    ],
+    previousNextPageDisabled: [
+      {
+        cursor: 'default',
+        backgroundColor: 'transparent'
       }
     ],
     pageNumber: [
       classNames.pageNumber,
       buttonStyles,
       {
+        verticalAlign: 'middle',
+        width: '32px',
+        height: '32px',
         color: palette.black,
         selectors: {
           '&:aria-selected=true': {
@@ -64,8 +65,7 @@ export function getStyles(props: IPaginationStyleProps): IPaginationStyles {
         }
       }
     ],
-    omission: [
-      classNames.omission,
+    visibleItemLabel: [
       {
         color: palette.neutralSecondary
       }
