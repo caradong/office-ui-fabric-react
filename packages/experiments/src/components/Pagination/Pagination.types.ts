@@ -10,11 +10,6 @@ export interface IPaginationProps {
    */
   pageCount: number;
 
-  firstPageIconProps?: IIconProps;
-  lastPageIconProps?: IIconProps;
-  previousPageIconProps?: IIconProps;
-  nextPageIconProps?: IIconProps;
-
   itemsPerPage?: number;
   totalItemCount?: number;
 
@@ -25,21 +20,44 @@ export interface IPaginationProps {
   selectedPageIndex?: number;
 
   /**
-   * aria label for the next page button
+   * Icon prop for the first page button
    */
-  nextAriaLabel?: string;
+  firstPageIconProps?: IIconProps;
+
+  /**
+   * Icon prop for the previous page button
+   */
+  previousPageIconProps?: IIconProps;
+
+  /**
+   * Icon prop for the next page button
+   */
+  nextPageIconProps?: IIconProps;
+
+  /**
+   * Icon prop for the last page button
+   */
+  lastPageIconProps?: IIconProps;
+
+  /**
+   * aria label for the first page button
+   */
+  firstPageAriaLabel?: string;
 
   /**
    * aria label for the previous page button
    */
-  previousAriaLabel?: string;
-  firstPageAriaLabel?: string;
-  lastPageAriaLabel?: string;
+  previousPageAriaLabel?: string;
 
   /**
-   * aria label for the omitted pages
+   * aria label for the next page button
    */
-  omittedPagesAriaLabel?: string;
+  nextPageAriaLabel?: string;
+
+  /**
+   * aria label for the last page button
+   */
+  lastPageAriaLabel?: string;
 
   /**
    * aria label for the page buttons
@@ -62,6 +80,9 @@ export interface IPaginationProps {
    */
   theme?: ITheme;
 
+  /**
+   * Use the combo box or not
+   */
   withComboBox?: boolean;
 
   numberOfPageButton?: number;

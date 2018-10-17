@@ -3,8 +3,8 @@ import { IconButton } from 'office-ui-fabric-react/lib/Button';
 import { BaseComponent, classNamesFunction } from '../../Utilities';
 import { PageNumber } from './PageNumber';
 import { IPaginationProps, IPaginationStyleProps, IPaginationStyles } from './Pagination.types';
-// import { FocusZone, FocusZoneDirection } from 'office-ui-fabric-react/lib/FocusZone';
 import { ComboBox, IComboBoxOption } from 'office-ui-fabric-react/lib/ComboBox';
+import { TooltipHost, DirectionalHint } from 'office-ui-fabric-react/lib/Tooltip';
 
 const getClassNames = classNamesFunction<IPaginationStyleProps, IPaginationStyles>();
 
@@ -34,7 +34,24 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
   }
 
   public render(): JSX.Element {
-    const { pageCount, selectedPageIndex, withComboBox, styles, theme, itemsPerPage, totalItemCount } = this.props;
+    const {
+      firstPageAriaLabel,
+      previousPageAriaLabel,
+      nextPageAriaLabel,
+      lastPageAriaLabel,
+      firstPageIconProps,
+      previousPageIconProps,
+      nextPageIconProps,
+      lastPageIconProps,
+      pageAriaLabel,
+      pageCount,
+      selectedPageIndex,
+      withComboBox,
+      styles,
+      theme,
+      itemsPerPage,
+      totalItemCount
+    } = this.props;
 
     this._classNames = getClassNames(styles!, {
       theme: theme!
@@ -48,17 +65,12 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
     if (withComboBox) {
       return (
         <div>
+          <IconButton iconProps={firstPageIconProps} onClick={this.handleFirstPage} disabled={!canFirst} aria-label={firstPageAriaLabel} />
           <IconButton
-            iconProps={{ iconName: 'DoubleChevronLeft' }}
-            onClick={this.handleFirstPage}
-            disabled={!canFirst}
-            aria-label="First page"
-          />
-          <IconButton
-            iconProps={{ iconName: 'ChevronLeft' }}
+            iconProps={previousPageIconProps}
             onClick={this.handlePreviousPage}
             disabled={!canPrevious}
-            aria-label="Previous page"
+            aria-label={previousPageAriaLabel}
           />
           <ComboBox
             ariaLabel={`${pageCount} pages available`}
@@ -70,13 +82,8 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
             }}
           />
           <span>{` of ${pageCount}`}</span>
-          <IconButton iconProps={{ iconName: 'ChevronRight' }} onClick={this.handleNextPage} disabled={!canNext} aria-label="Next page" />
-          <IconButton
-            iconProps={{ iconName: 'DoubleChevronRight' }}
-            onClick={this.handleLastPage}
-            disabled={!canLast}
-            aria-label="Last page"
-          />
+          <IconButton iconProps={nextPageIconProps} onClick={this.handleNextPage} disabled={!canNext} aria-label={nextPageAriaLabel} />
+          <IconButton iconProps={lastPageIconProps} onClick={this.handleLastPage} disabled={!canLast} aria-label={lastPageAriaLabel} />
         </div>
       );
     }
@@ -91,6 +98,7 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
       const rightItemsIndex = Math.min((selectedPageIndex! + 1) * itemsPerPage, totalItemCount);
       visibleItemLabel = `${leftItemIndex} -  ${rightItemsIndex} of ${totalItemCount}`;
     }
+
     return (
       <div className={this._classNames.root}>
         <div>
@@ -98,7 +106,7 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
             iconProps={this.props.firstPageIconProps}
             onClick={this.handleFirstPage}
             disabled={!canFirst}
-            aria-label="First page"
+            aria-label={firstPageAriaLabel}
             styles={{
               icon: this._classNames.previousNextPage,
               rootDisabled: this._classNames.previousNextPageDisabled
@@ -108,34 +116,35 @@ export class PaginationBase extends BaseComponent<IPaginationProps, {}> {
             iconProps={this.props.previousPageIconProps}
             onClick={this.handlePreviousPage}
             disabled={!canPrevious}
-            aria-label="Previous page"
+            aria-label={previousPageAriaLabel}
             styles={{
               icon: this._classNames.previousNextPage,
               rootDisabled: this._classNames.previousNextPageDisabled
             }}
           />
           {this._pageList()}
-          {/* <FocusZone direction={FocusZoneDirection.horizontal}>{this._pageList()}</FocusZone> */}
           <IconButton
             iconProps={this.props.nextPageIconProps}
             onClick={this.handleNextPage}
             disabled={!canNext}
-            aria-label="Next page"
+            aria-label={nextPageAriaLabel}
             styles={{
               icon: this._classNames.previousNextPage,
               rootDisabled: this._classNames.previousNextPageDisabled
             }}
           />
-          <IconButton
-            iconProps={this.props.lastPageIconProps}
-            onClick={this.handleLastPage}
-            disabled={!canLast}
-            aria-label="Last page"
-            styles={{
-              icon: this._classNames.previousNextPage,
-              rootDisabled: this._classNames.previousNextPageDisabled
-            }}
-          />
+          <TooltipHost content={`${pageAriaLabel} ${pageCount + 1}`} directionalHint={DirectionalHint.bottomCenter}>
+            <IconButton
+              iconProps={this.props.lastPageIconProps}
+              onClick={this.handleLastPage}
+              disabled={!canLast}
+              aria-label={lastPageAriaLabel}
+              styles={{
+                icon: this._classNames.previousNextPage,
+                rootDisabled: this._classNames.previousNextPageDisabled
+              }}
+            />
+          </TooltipHost>
         </div>
         {visibleItemLabel && (
           <div className={this._classNames.visibleItemLabel} aria-label={visibleItemLabel}>

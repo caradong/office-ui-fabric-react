@@ -18,8 +18,8 @@ export class PaginationBasicExample extends React.Component<{}, IPaginationBasic
         pageCount={27}
         itemsPerPage={10}
         totalItemCount={268}
-        previousAriaLabel={'previous page'}
-        nextAriaLabel={'next page'}
+        previousPageAriaLabel={'previous page'}
+        nextPageAriaLabel={'next page'}
         firstPageAriaLabel={'first page'}
         lastPageAriaLabel={'last page'}
         pageAriaLabel={'page'}

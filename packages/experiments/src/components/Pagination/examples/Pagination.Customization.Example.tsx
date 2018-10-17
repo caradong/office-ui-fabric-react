@@ -17,8 +17,8 @@ export class PaginationCustomizationExample extends React.Component<{}, IPaginat
         selectedPageIndex={this.state.selectedPageIndex}
         pageCount={50}
         numberOfPageButton={8}
-        previousAriaLabel={'previous page'}
-        nextAriaLabel={'next page'}
+        previousPageAriaLabel={'previous page'}
+        nextPageAriaLabel={'next page'}
         firstPageAriaLabel={'first page'}
         lastPageAriaLabel={'last page'}
         pageAriaLabel={'page'}
