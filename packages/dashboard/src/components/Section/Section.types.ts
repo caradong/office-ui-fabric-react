@@ -25,12 +25,13 @@ export interface ISectionProps {
   /**
    * Styling
    */
-  style?: IStyleFunctionOrObject<ISectionStyleProps, ISectionStyles>;
+  styles?: IStyleFunctionOrObject<ISectionStyleProps, ISectionStyles>;
 
   /**
    * String for removing section, pass in only if remove is allowed when section is displayed in dashboard
    */
   removeTitle?: string;
+
   /**
    * Is in the edit section mode?
    * @default false
@@ -106,6 +107,12 @@ export interface ISectionStyleProps {
    * The row height used for React-Grid-Layout
    */
   rowHeight?: number;
+
+  /**
+   * Is in the edit section mode?
+   * @default false
+   */
+  isEditMode?: boolean;
 }
 
 export interface ISection extends ISectionProps {
@@ -125,7 +132,8 @@ export interface ISectionState {
 export interface ISectionStyles {
   root: IStyle;
   sectionTitle: IStyle;
-  editTitleTextField: IStyle;
+  addSectionTextField: IStyle;
+  renameSectionTextField: IStyle;
   actions: IStyle;
   actionButton: IStyle;
   actionButtonDisabled: IStyle;
@@ -221,6 +229,11 @@ export interface IEditSectionsProps {
   deleteSectionButtonProps?: IButtonProps;
 
   /**
+   * Custom styling for individual elements within the edit section DOM.
+   */
+  styles?: IStyleFunctionOrObject<{}, IEditSectionsStyles>;
+
+  /**
    * On add a new section.
    */
   onAddSection?(title: string): void;
@@ -253,6 +266,11 @@ export interface IEditSectionsProps {
    * Callback when click on cancel button
    */
   onCancel?(): void;
+
+  /**
+   * Callback when click on save button
+   */
+  onSave?(): void;
 }
 
 export interface IEditSectionsStyles {
@@ -261,5 +279,5 @@ export interface IEditSectionsStyles {
   addButton: IStyle;
   saveButton: IStyle;
   cancelButton: IStyle;
-  rightAlignedFlexContainer: IStyle;
+  topActionButtonsFlexContainer: IStyle;
 }

@@ -10,6 +10,12 @@ export const AppDefinition: IAppDefinition = {
     {
       links: [
         {
+          component: require<any>('../components/Button/ButtonPage').ButtonPage,
+          key: 'Button',
+          name: 'Button',
+          url: '#/examples/button'
+        },
+        {
           component: require<any>('../components/CollapsibleSection/CollapsibleSectionPage').CollapsibleSectionPage,
           key: 'CollapsibleSection',
           name: 'CollapsibleSection',
@@ -40,6 +46,12 @@ export const AppDefinition: IAppDefinition = {
           url: '#/examples/filetypeicon'
         },
         {
+          component: require<any>('../components/Stack/HorizontalStack/HorizontalStackPage').HorizontalStackPage,
+          key: 'HorizontalStack',
+          name: 'HorizontalStack',
+          url: '#/examples/horizontalstack'
+        },
+        {
           component: require<any>('../components/LayoutGroup/LayoutGroupPage').LayoutGroupPage,
           key: 'LayoutGroup',
           name: 'LayoutGroup',
@@ -50,12 +62,6 @@ export const AppDefinition: IAppDefinition = {
           key: 'Signals',
           name: 'Signals',
           url: '#/examples/signals'
-        },
-        {
-          component: require<any>('../components/Stack/StackPage').StackPage,
-          key: 'Stack',
-          name: 'Stack',
-          url: '#/examples/stack'
         },
         {
           component: require<any>('../components/Text/TextPage').TextPage,
@@ -76,10 +82,22 @@ export const AppDefinition: IAppDefinition = {
           url: '#/examples/tileslist'
         },
         {
+          component: require<any>('../components/Pagination/PaginationPage').PaginationPage,
+          key: 'Pagination',
+          name: 'Pagination',
+          url: '#/examples/pagination'
+        },
+        {
           component: require<any>('../components/Shimmer/ShimmerPage').ShimmerPage,
           key: 'Shimmer',
           name: 'Shimmer',
           url: '#/examples/shimmer'
+        },
+        {
+          component: require<any>('../components/Stack/VerticalStack/VerticalStackPage').VerticalStackPage,
+          key: 'VerticalStack',
+          name: 'VerticalStack',
+          url: '#/examples/verticalstack'
         },
         {
           component: require<any>('../components/VirtualizedList/VirtualizedListPage').VirtualizedListPage,
